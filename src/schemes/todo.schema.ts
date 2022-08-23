@@ -11,10 +11,12 @@ export const getSingleTodoSchema = z.object({
   id: z.string().cuid(),
 })
 
-export const TodoSchema = z.object({
+export const updateTodoSchema = z.object({
   id: z.string().cuid(),
   content: z.string(),
-  createdAt: z.date(),
 })
 
+export const deleteSingleTodoSchema = z.object({
+  id: z.string().cuid(),
+})
 export type CreateTodoInput = z.TypeOf<typeof createTodoSchema>

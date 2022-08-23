@@ -2,7 +2,9 @@
 import * as trpc from '@trpc/server'
 import {
   createTodoSchema,
+  deleteSingleTodoSchema,
   getSingleTodoSchema,
+  updateTodoSchema,
 } from '../../schemes/todo.schema'
 import { createRouter } from '../createRouter'
 
@@ -38,7 +40,9 @@ export const todoRouter = createRouter()
   .query('getAll', {
     async resolve({ ctx }) {
       try {
-        const todos = await ctx.prisma.todo.findMany()
+        const todos = await ctx.prisma.todo.findMany({
+          orderBy: { createdAt: 'desc' },
+        })
 
         return todos
       } catch (error) {
@@ -62,6 +66,43 @@ export const todoRouter = createRouter()
         throw new trpc.TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message: `We coundn\`t find todo with id ${input.id}!`,
+        })
+      }
+    },
+  })
+  .mutation('update', {
+    input: updateTodoSchema,
+    async resolve({ input, ctx }) {
+      try {
+        const updatedTodo = await ctx.prisma.todo.update({
+          where: { id: input.id },
+          data: {
+            content: input.content,
+          },
+        })
+
+        return updatedTodo
+      } catch (error) {
+        throw new trpc.TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: `We coundn\`t update todo with id ${input.id}!`,
+        })
+      }
+    },
+  })
+  .mutation('delete', {
+    input: deleteSingleTodoSchema,
+    async resolve({ input, ctx }) {
+      try {
+        const updatedTodo = await ctx.prisma.todo.delete({
+          where: { id: input.id },
+        })
+
+        return updatedTodo
+      } catch (error) {
+        throw new trpc.TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: `We coundn\`t delete todo with id ${input.id}!`,
         })
       }
     },

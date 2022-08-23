@@ -4,10 +4,15 @@ import { withTRPC } from '@trpc/next'
 import { loggerLink } from '@trpc/client/links/loggerLink'
 import { httpBatchLink } from '@trpc/client/links/httpBatchLink'
 import superjson from 'superjson'
+import { ToastProvider } from 'react-toast-notifications'
 import { AppRouter } from '../server/routers/app.router'
 
 function MyApp({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />
+  return (
+    <ToastProvider>
+      <Component {...pageProps} />
+    </ToastProvider>
+  )
 }
 
 export default withTRPC<AppRouter>({

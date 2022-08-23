@@ -1,15 +1,23 @@
 ﻿import { useState } from 'react'
+import { useToasts } from 'react-toast-notifications'
 import { trpc } from '../../utils/trps'
 import { FlexContainer } from '../Container/styles'
 import { Button, StyledInput } from './styles'
 
 const Form = () => {
-  const { mutate, error } = trpc.useMutation('todos.create')
+  const { mutate, error } = trpc.useMutation('todos.create', {
+    onError: () => {
+      addToast(error?.message, { appearance: 'error' })
+    },
+  })
+
+  const { addToast } = useToasts()
 
   const [todo, setTodo] = useState<string>()
 
   const onSubmit = () => {
     mutate({ content: todo as string })
+    addToast('You add new todo, congrats!', { appearance: 'success' })
     setTodo('')
   }
 
