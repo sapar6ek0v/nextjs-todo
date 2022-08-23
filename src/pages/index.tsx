@@ -7,6 +7,7 @@ const Home: NextPage = () => {
   return (
     <Wrapper>
       <div>
+        {/* <h1 className=" text-red-600 text-2xl">Hello world</h1> */}
         <Form />
         <ListItem />
       </div>

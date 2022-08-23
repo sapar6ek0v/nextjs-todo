@@ -1,6 +1,5 @@
 ﻿import styled from 'styled-components'
 import { colors } from '../../constants'
-import { StyledProps } from './types'
 
 export const StyledListCard = styled.div`
   background: ${colors.darkBlue};
@@ -38,7 +37,7 @@ export const UpdateInput = styled.input`
 `
 
 export const Button = styled.button`
-  color: ${(props: StyledProps) => props.color};
+  color: ${(props) => props.color};
   font-size: 19px;
   cursor: pointer;
   margin: 0 5px;

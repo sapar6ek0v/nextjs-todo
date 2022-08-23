@@ -1,64 +1,50 @@
-﻿import { NextPage } from 'next'
-import { useState } from 'react'
+﻿import { FC } from 'react'
 import { BsFillTrashFill } from 'react-icons/bs'
-import { AiFillEdit, AiFillSave } from 'react-icons/ai'
-import { Props } from './types'
-import { StyledListCard, ListItem, UpdateInput, Button } from './styles'
-import { colors } from '../../constants'
-import { trpc } from '../../utils/trps'
+import { AiFillEdit } from 'react-icons/ai'
 import { useToasts } from 'react-toast-notifications'
+import { Todo } from '@prisma/client'
+import { useRouter } from 'next/router'
+import { StyledListCard, ListItem, Button } from './styles'
+import { colors } from '../../constants'
+import { trpc } from '../../utils/trpc'
 
-const ListCard: NextPage<Props> = ({ todo }) => {
-  const { mutate, error } = trpc.useMutation(['todos.update'], {
-    onError: () => {
+export type Props = {
+  todo: Todo
+}
+
+const ListCard: FC<Props> = ({ todo }) => {
+  const utils = trpc.useContext()
+  const router = useRouter()
+
+  const { mutate: deleteTodo, error } = trpc.useMutation(['todos.delete'], {
+    onError: (error) => {
       addToast(error?.message, { appearance: 'error' })
     },
+    onSuccess(data, variables, ctx) {
+      utils.invalidateQueries(['todos.getAll'])
+    },
   })
-  // const { mutateD } = trpc.useMutation(['todos.delete'])
 
   const { addToast } = useToasts()
 
-  const [update, setUpdate] = useState<boolean>(false)
-  const [updateTodo, setUpdateTodo] = useState<string>(todo.content as string)
-
-  const onDelete = (id: string): void => {
-    // mutateD()
+  const onDelete = (id: string) => {
+    deleteTodo({ id })
+    addToast('You successfully delete todo!', { appearance: 'success' })
   }
 
-  const onEdit = (): void => {
-    setUpdate(true)
-  }
-
-  const onUpdate = (id: string): void => {
-    mutate({ id, content: updateTodo })
-    addToast('You successfully update todo!', { appearance: 'success' })
-    setUpdate(false)
-  }
-
-  const onChange = (event: React.FormEvent<HTMLInputElement>): void => {
-    const newValue = event.currentTarget.value
-    setUpdateTodo(newValue)
+  const onEdit = () => {
+    router.push(`/todo/${todo.id}`)
   }
 
   return (
     <StyledListCard key={todo.id}>
       <ListItem>
-        {update ? (
-          <UpdateInput value={updateTodo} onChange={onChange} />
-        ) : (
-          <span>{todo.content}</span>
-        )}
+        <span>{todo.content}</span>
       </ListItem>
       <div>
-        {update ? (
-          <Button onClick={() => onUpdate(todo.id)} color={colors.yellow}>
-            <AiFillSave />
-          </Button>
-        ) : (
-          <Button onClick={onEdit} color={colors.green}>
-            <AiFillEdit />
-          </Button>
-        )}
+        <Button onClick={onEdit} color={colors.green}>
+          <AiFillEdit />
+        </Button>
         <Button onClick={() => onDelete(todo.id)} color={colors.red}>
           <BsFillTrashFill />
         </Button>

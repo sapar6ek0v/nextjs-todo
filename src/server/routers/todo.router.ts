@@ -1,16 +1,12 @@
 ﻿import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import * as trpc from '@trpc/server'
-import {
-  createTodoSchema,
-  deleteSingleTodoSchema,
-  getSingleTodoSchema,
-  updateTodoSchema,
-} from '../../schemes/todo.schema'
+import { z } from 'zod'
+import { TodoInputSchema } from '../../schemes/todo.schema'
 import { createRouter } from '../createRouter'
 
 export const todoRouter = createRouter()
   .mutation('create', {
-    input: createTodoSchema,
+    input: TodoInputSchema,
     async resolve({ ctx, input }) {
       try {
         const { content } = input
@@ -54,7 +50,9 @@ export const todoRouter = createRouter()
     },
   })
   .query('getById', {
-    input: getSingleTodoSchema,
+    input: z.object({
+      id: z.string(),
+    }),
     async resolve({ input, ctx }) {
       try {
         const todo = await ctx.prisma.todo.findUnique({
@@ -71,13 +69,16 @@ export const todoRouter = createRouter()
     },
   })
   .mutation('update', {
-    input: updateTodoSchema,
+    input: z.object({
+      id: z.string(),
+      data: TodoInputSchema,
+    }),
     async resolve({ input, ctx }) {
       try {
         const updatedTodo = await ctx.prisma.todo.update({
           where: { id: input.id },
           data: {
-            content: input.content,
+            content: input.data.content,
           },
         })
 
@@ -91,7 +92,9 @@ export const todoRouter = createRouter()
     },
   })
   .mutation('delete', {
-    input: deleteSingleTodoSchema,
+    input: z.object({
+      id: z.string(),
+    }),
     async resolve({ input, ctx }) {
       try {
         const updatedTodo = await ctx.prisma.todo.delete({

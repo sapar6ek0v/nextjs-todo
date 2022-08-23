@@ -4,5 +4,5 @@ export const FlexContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-top: 200px;
+  margin-top: 350px;
 `

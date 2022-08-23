@@ -1,9 +1,9 @@
-﻿import { useState } from 'react'
-import { trpc } from '../../utils/trps'
+﻿import { FC } from 'react'
+import { trpc } from '../../utils/trpc'
 import ListCard from '../ListCard'
 import { ListGroup } from './styles'
 
-const ListItem = () => {
+const ListItem: FC = () => {
   const { data } = trpc.useQuery(['todos.getAll'])
 
   return (

@@ -1,27 +1,30 @@
-﻿import { useState } from 'react'
+﻿import { FC, useState } from 'react'
 import { useToasts } from 'react-toast-notifications'
-import { trpc } from '../../utils/trps'
-import { FlexContainer } from '../Container/styles'
-import { Button, StyledInput } from './styles'
+import { trpc } from '../../utils/trpc'
+import InputForm from '../InputForm'
 
-const Form = () => {
+const Form: FC = () => {
+  const utils = trpc.useContext()
   const { mutate, error } = trpc.useMutation('todos.create', {
     onError: () => {
       addToast(error?.message, { appearance: 'error' })
+    },
+    onSuccess(data, variables, ctx) {
+      utils.invalidateQueries(['todos.getAll'])
     },
   })
 
   const { addToast } = useToasts()
 
-  const [todo, setTodo] = useState<string>()
+  const [todo, setTodo] = useState('')
 
   const onSubmit = () => {
-    mutate({ content: todo as string })
+    mutate({ content: todo })
     addToast('You add new todo, congrats!', { appearance: 'success' })
     setTodo('')
   }
 
-  const handleOnChange = (event: React.FormEvent<HTMLInputElement>): void => {
+  const handleOnChange = (event: React.FormEvent<HTMLInputElement>) => {
     const newValue = event.currentTarget.value
     setTodo(newValue)
   }
@@ -35,17 +38,14 @@ const Form = () => {
   }
 
   return (
-    <FlexContainer>
-      <StyledInput
-        value={todo}
-        onChange={handleOnChange}
-        onKeyDown={handleOnKeyDown}
-        placeholder="Add a task."
-      />
-      <Button disabled={!todo} onClick={onSubmit}>
-        Start
-      </Button>
-    </FlexContainer>
+    <InputForm
+      handleOnChange={handleOnChange}
+      handleOnKeyDown={handleOnKeyDown}
+      onSubmit={onSubmit}
+      value={todo}
+      placeholder="Add new task ."
+      btnText="Start"
+    />
   )
 }
 
